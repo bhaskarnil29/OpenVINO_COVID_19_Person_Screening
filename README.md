@@ -4,18 +4,16 @@
  - Open command prompt and initialize Openvino environment (run
    setupvars.bat).
  - Navigate to Github reprository folder in command prompt.
- - Run this command on command prompt: **python Left_out_kid_detect_openvino.py  --input .\demo_video.mp4   --cpu_ext .\cpu_extension_avx2.dll**
- - ***--input path_to_input_video_file*** arg parameter is used to provide input video file(car cabin view) to perform inference on it.
+  - Run this command on command prompt: **python covid_19_person_screening.py --input demo_input.mp4  --thermal_camera demo_input_thermal.avi  --cpu_ext cpu_extension_avx2.dll **
+ - ***--input path_to_input_video_file*** arg parameter is used to provide input video file from vision camera(i.e CCTV output of  airport) to perform inference on it.
+-***--thermal_camera path_to_thermal_camera_file*** arg parameter is used to provide input video file from thermal camera, both thermal camera  and vision camera should have same view of field, resolution and FPS. If not , it need to pre-processed to match with o/p of vision camera.  Currently in program, thermal camera video is not from actual thermal camera and we are mimicking it by applying image processing on vision camera output.   
  - ***--cpu_ext path_to_cpu_extension_file*** arg parameter is used to provide cpu extension file. It is processor and OS dependent file so provide cpu extension file accordingly to your system configuration. 
  - Expected output will be:
 
-   On newly opened opencv window video will play along with          classification of car        occupants as either kid or adult. It    will also   have warning text embedded on video when  alone kid is    present after   threshold amount of time (set to 2 sec here,          ALONE_KID_TIME_THREESHOLD parameter inside Python script.) (see below section **Output snapshots**). If any key pressed  during video inferring    , program will end.
+   Two OpenCV video window will be opened, in first window vision camera video will be played along with face detection inference (face bounding box) and action recognition inference (with recognised action i.e. coughing). In second window thermal camera video will be played with face bounding box, bounding box coordinate take from vision camera frame. Once face bounding box is drawn on thermal frame, face temperature is read within bounding box. This face temperature is shown in vision frame. Also person is categorized as low risk(no fever) , moderate risk (fever but no coughing) and high risk(fever with coughing action). 
+On command prompt recognised action from vision camera and face temperature from thermal camera is printed respectively. ** See  below snapshot **
 
-	Final inferred output video also will be saved in same input video directory named as demo_video_inferred.mp4
-	
-    Also in command prompt frame by frame detection status is printed.
-    
-	
+	Final inferred output video also will be saved in same input video directory suffixed with _inferred.avi
 
  - Above program is tested on Windows 10 environment. For Linux openvino
    setup  and cpu extension, please follow Openvino documentation.
@@ -42,15 +40,15 @@ Python Program Demo Video can be accessed here : https://www.youtube.com/watch?v
 
 # Problem Statement
 
-Child heatstroke car death is big safety issue and it caused significant no of children death worldwide.  In 2019, there are **53 children deaths** due to hot car death alone in US (reference [https://www.kidsandcars.org/how-kids-get-hurt/heat-stroke/](https://www.kidsandcars.org/how-kids-get-hurt/heat-stroke/)) .  On average there are 38 deaths per year and **940 children death** since 1990 in US alone, worldwide number will be more.
+In recent time Corona virus has caused significant deaths and distress.  One of challenge is to screen human infected with Corona virus symptoms in public place (i.e. airport, railway station, shopping malls etc) so than infected person can be pathologically tested and if found positive person need to be quarantine and treated as early as possible. Quarantine is very important step to stop spread of corona virus.
 
 
 
 # Solution(Idea)
 
-Our  idea to solve above problem is to use in car camera to detect alone left out kid(s) with help of computer vision and deep learning model. Below is pictorial representation (**Flow Chart Section**) of our idea to detect left out kid in car. We are using camera to detect occupants age and deciding whether there are **only kid(s)** present in car for more than threshold time, if yes, we raise alarm i.e send sms or app notifications to parents  either using Car V2X technology(Connected car) or in-built modem with camera. It can also raise alarm to emergency response team (i.e. 911).
+Our idea is to screen Corona virus infected persons in public place(i.e. airport , mall etc) to use vision camera along with thermal camera. As corona virus symptoms are fever, coughing and sneezing . Our idea is to use thermal + normal vision imaging camera and OpenVINO DNN model  to detect these symptoms in person in public place to screen. We firstly use OpenVINO face-person-detection-retail model to detect individual human body bounding box and corresponding face bounding box in each frame of vision camera. Once we get bounding box for each face in vision frame, we look for corresponding face temperature in thermal camera using bounding box co-ordinate. Based on each person’s face temperature, we detect whether person has fever or not. If person has fever, we cropped his/her human body using human bounding box out of vision frame. These human body cropped images feed to OpenVINO action-recognition model to detect action of coughing, sneezing or blowing nose. (1) If coughing, sneezing or blowing nose action detected in person with high fever, person will be categorized as High Risk(Fever & Sneezing).(2)If coughing action not detected in person with fever, person will be categorized as moderate risk. ). (2) If coughing action not detected in person with fever, person will be categorized as moderate risk. (3) If person doesn’t have fever, person will be categorized as no risk.
+ See below flow chart for pictorial representation, how this detection work.
 
-To detect occupants age, first we use face detection deep learning model to detect face and get its associated bounding box. Then we cropped face of each occupant and feed it to age prediction deep learning model to predict age of each occupant in car. Once we have predicted age of all occupants, we categorized each occupant to kid (less than or equal to 12 years) or adult (greater than 12 years) in given frame. If we detect only kid(s) with no adult present in car, we raise alarm after programmable threshold amount of time elapsed (say 15min). In Python program we didn’t implemented sms service (paid service) or app notification, instead to show alarm we just embedded frame with warning text. Messaging service can be implemented with **Twilio API**
 
 For face detect model, Openvino pretrained model **face-detection-retail-0004** is used and for age prediction we used **[Gil Levi and Tal Hassner Age Classification](https://talhassner.github.io/home/publication/2015_CVPR)** Using Convolutional Neural Network. Age prediction model is available as Caffe model, we converted it to Openvino IR format using model optimizer.
 
