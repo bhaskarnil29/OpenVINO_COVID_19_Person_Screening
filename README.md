@@ -6,12 +6,21 @@
  - Navigate to Github reprository folder in command prompt.
   - Run this command on command prompt: **python covid_19_person_screening.py --input demo_input.mp4  --thermal_camera demo_input_thermal.avi  --cpu_ext cpu_extension_avx2.dll **
  - ***--input path_to_input_video_file*** arg parameter is used to provide input video file from vision camera(i.e CCTV output of  airport) to perform inference on it.
--***--thermal_camera path_to_thermal_camera_file*** arg parameter is used to provide input video file from thermal camera, both thermal camera  and vision camera should have same view of field, resolution and FPS. If not , it need to pre-processed to match with o/p of vision camera.  Currently in program, thermal camera video is not from actual thermal camera and we are mimicking it by applying image processing on vision camera output.   
+ - ***--thermal_camera path_to_thermal_camera_file*** arg parameter is used to provide input video file from thermal camera, both thermal camera  and vision camera should have same view of field, resolution and FPS. If not , it need to pre-processed to match with o/p of vision camera.  Currently in program, thermal camera video is not from actual thermal camera and we are mimicking it by applying image processing on vision camera output.   
  - ***--cpu_ext path_to_cpu_extension_file*** arg parameter is used to provide cpu extension file. It is processor and OS dependent file so provide cpu extension file accordingly to your system configuration. 
  - Expected output will be:
 
    Two OpenCV video window will be opened, in first window vision camera video will be played along with face detection inference (face bounding box) and action recognition inference (with recognised action i.e. coughing). In second window thermal camera video will be played with face bounding box, bounding box coordinate take from vision camera frame. Once face bounding box is drawn on thermal frame, face temperature is read within bounding box. This face temperature is shown in vision frame. Also person is categorized as low risk(no fever) , moderate risk (fever but no coughing) and high risk(fever with coughing action). 
 On command prompt recognised action from vision camera and face temperature from thermal camera is printed respectively. ** See  below snapshot **
+
+![Inferred Frame of vision camera](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot2.jpg)
+**Snapshot 1: Frame inferred in video where adult with fever is coughing and categorized as high risk **
+
+![Frame of thermal camera](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot3.jpg)
+**Snapshot 2: Thermal camera frame. Based on face bounding box face temperature is read  **
+
+![Command prompt output](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot1.jpg)
+ **Snapshot 3 : Python command prompt output showing thermal and vision camera frame's inferred output.**
 
 	Final inferred output video also will be saved in same input video directory suffixed with _inferred.avi
 
@@ -19,17 +28,6 @@ On command prompt recognised action from vision camera and face temperature from
    setup  and cpu extension, please follow Openvino documentation.
 
 
-
-# Output Snapshots
-
-![Command prompt output](https://github.com/chetancyber24/Leftout_Kid_Detect_in_Car/blob/master/images/snapshot1.jpg)
- **Snapshot 1 : Python command prompt output showing each frame inferred status(Adult present or not).** 
-
-![Inferred Frame with adult](https://github.com/chetancyber24/Leftout_Kid_Detect_in_Car/blob/master/images/snapshot2.jpg)
-**Snapshot 2: Frame inferred in video where adult is present in car with kid.**
-
-![Inferred Frame with alone kid](https://github.com/chetancyber24/Leftout_Kid_Detect_in_Car/blob/master/images/snapshot3.jpg)
- **Snapshot 3: Frame inferred in video where alone kid is present in car with warning embedded.**
 
 
 # Demo Video
