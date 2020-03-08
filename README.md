@@ -4,25 +4,27 @@
  - Open command prompt and initialize Openvino environment (run
    setupvars.bat).
  - Navigate to Github reprository folder in command prompt.
-  - Run this command on command prompt: **python covid_19_person_screening.py --input demo_input.mp4  --thermal_camera demo_input_thermal.avi  --cpu_ext cpu_extension_avx2.dll **
+  - Run this command on command prompt ***python covid_19_person_screening.py --input demo_input.mp4  --thermal_camera demo_input_thermal.mp4  --cpu_ext cpu_extension_avx2.dll ***
  - ***--input path_to_input_video_file*** arg parameter is used to provide input video file from vision camera(i.e CCTV output of  airport) to perform inference on it.
  - ***--thermal_camera path_to_thermal_camera_file*** arg parameter is used to provide input video file from thermal camera, both thermal camera  and vision camera should have same view of field, resolution and FPS. If not , it need to pre-processed to match with o/p of vision camera.  Currently in program, thermal camera video is not from actual thermal camera and we are mimicking it by applying image processing on vision camera output.   
  - ***--cpu_ext path_to_cpu_extension_file*** arg parameter is used to provide cpu extension file. It is processor and OS dependent file so provide cpu extension file accordingly to your system configuration. 
  - Expected output will be:
 
    Two OpenCV video window will be opened, in first window vision camera video will be played along with face detection inference (face bounding box) and action recognition inference (with recognised action i.e. coughing). In second window thermal camera video will be played with face bounding box, bounding box coordinate take from vision camera frame. Once face bounding box is drawn on thermal frame, face temperature is read within bounding box. This face temperature is shown in vision frame. Also person is categorized as low risk(no fever) , moderate risk (fever but no coughing) and high risk(fever with coughing action). 
-On command prompt recognised action from vision camera and face temperature from thermal camera is printed respectively. ** See  below snapshot **
+On command prompt recognised action from vision camera and face temperature from thermal camera is printed respectively. ** See  below snapshots **
 
 ![Inferred Frame of vision camera](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot2.jpg)
+
 **Snapshot 1: Frame inferred in video where adult with fever is coughing and categorized as high risk **
 
 ![Frame of thermal camera](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot3.jpg)
-**Snapshot 2: Thermal camera frame. Based on face bounding box face temperature is read  **
+
+**Snapshot 2: Thermal camera frame, based on face bounding box face temperature is read  **
 
 ![Command prompt output](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot1.jpg)
  **Snapshot 3 : Python command prompt output showing thermal and vision camera frame's inferred output.**
 
-	Final inferred output video also will be saved in same input video directory suffixed with _inferred.avi
+ - Final inferred output video also will be saved in same input video directory suffixed with _inferred.avi
 
  - Above program is tested on Windows 10 environment. For Linux openvino
    setup  and cpu extension, please follow Openvino documentation.
@@ -31,7 +33,7 @@ On command prompt recognised action from vision camera and face temperature from
 
 
 # Demo Video
-Python Program Demo Video can be accessed here : https://www.youtube.com/watch?v=978tXgmopO4&feature=youtu.be
+Python Program Demo Video can be accessed here : https://youtu.be/L89iBouHMLU
 
  
 
@@ -48,10 +50,10 @@ Our idea is to screen Corona virus infected persons in public place(i.e. airport
  See below flow chart for pictorial representation, how this detection work.
 
 
-For face detect model, Openvino pretrained model **face-detection-retail-0004** is used and for age prediction we used **[Gil Levi and Tal Hassner Age Classification](https://talhassner.github.io/home/publication/2015_CVPR)** Using Convolutional Neural Network. Age prediction model is available as Caffe model, we converted it to Openvino IR format using model optimizer.
+
 
 # Flow Chart
-![Algorithm Flow Chart](https://github.com/chetancyber24/Leftout_Kid_Detect_in_Car/blob/master/flow_chart.png)
+![Algorithm Flow Chart](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/flow_chart.jpg)
 
 
 
@@ -59,57 +61,21 @@ For face detect model, Openvino pretrained model **face-detection-retail-0004** 
 
 
 
-# Known Issue, Possible Solutions & Further enhancement
+# Known Limitations &Issue
 
- - In some random frame of video age prediction model make wrong
-   prediction and classify adult into kid (or vice versa).  To supress
-   false alarm, kid alone alarm will be raised after certain amount of
-   time where consecutive frame is detected kid with no adult present.
-   In python program, this threshold parameter is determined by
-   ALONE_KID_TIME_THREESHOLD it is set to 2sec in program because of
-   short demo video. In real life this can be set to slightly longer
-   time (i.e. 15 mins).
+ -  Currently OpenVINO pre-trained action-recognition-0001 model is not able to detect coughing, sneezing action on input video. Possible reason could be that model’s training dataset(Kinetics-400 dataset) have very less videos of adult coughing and have more videos of child in dataset. Hence it is failing to detect adult’s coughing action in video. To overcome this issue in demo program, we are just hardcoding coughing action for demo purpose. For real deployment, action recognition model which can robustly detect adult’s coughing action. Also we are mimicking thermal camera output because we don't have actual thermal camera hardware.
   
- - Currently when kid is detected without adult, as alarm video is   
-   embedded with warning text. In real life this should trigger warning 
-   sms or app notification to parents’ phone or 911 emergency responder 
-   using V2X technology (connected vehicle).
- - This further can be enhanced to disable specific airbag when small
-   kid is detected.
- - Camera mounted on rear view mirror capturing view of inside car cabin
-   will not be able to capture child sat in **rear facing car seat**. To
-   solve this issue one more camera(red camera in below snapshot), need
-   to mount on near back windshield to capture kid sitting in rear
-   facing seat.
-   ![Camera in back windshield](https://github.com/chetancyber24/Leftout_Kid_Detect_in_Car/blob/master/images/snapshot4.jpg)
-**Figure: Camera mounted on near back windshield to capture kid seating in rear facing car seat.**
 
 
-# Google Colab Project(Alternative)
-As a different approach we also tried installing OpenVino in Google Colab and using Res10 Single Shot Detector Caffe Model for face detection and the same Age Classification Network.
 
-Steps to run the project in Google Colab:
- - Access the Folder for the project from the following link:
-Child_Lost_In_Car
- - Open the colab notebook: ‘ Detecting_Kids_Left_Alone_In_a_Car.ipynb’
- - Change the RunType to GPU
-Menubar → RunTime → Change runtime type
- - Execute each cell by cell ( cntrl + enter) or (alt+enter) or `'/>'` button near each cells
-Or Menubar → RunTime → run all
-   
- - Please Note: After running or the execution of the first cell for
-   mounting the Google drive in  either step 3 or step 4 you choose, you will be prompted to click on the link generated to   authenticate the mounting of the Google Drive
- - Read through the Colab Notebook to download the output file and see the output.
 
 # Project Members
-Chetan Verma, Lakshmi Prasannakumar & Saikat Pandit
+Chetan Verma, Saikat Pandit & Lakshmi Prasannakumar 
 
 # References:
 
  - Udacity Intel® Edge AI Scholarship Foundation Course
  - Intel OpenVino Documentation
- - Age detection Model
-   ([https://data-flair.training/blogs/python-project-gender-age-detection/](https://data-flair.training/blogs/python-project-gender-age-detection/))
  - Sample videos (shutterstock.com)
 
 
