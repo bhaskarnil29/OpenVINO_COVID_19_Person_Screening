@@ -15,11 +15,11 @@ On command prompt recognised action from vision camera and face temperature from
 
 ![Inferred Frame of vision camera](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot2.jpg)
 
-**Snapshot 1: Frame inferred in video where adult with fever is coughing and categorized as high risk **
+ **Snapshot 1: Frame inferred in video where adult with fever is coughing and categorized as high risk **
 
 ![Frame of thermal camera](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot3.jpg)
 
-**Snapshot 2: Thermal camera frame, based on face bounding box face temperature is read  **
+ **Snapshot 2: Thermal camera frame, based on face bounding box face temperature is read  **
 
 ![Command prompt output](https://github.com/chetancyber24/OpenVINO_COVID_19_Person_Screening/blob/master/output_screenshot/screenshot1.jpg)
  **Snapshot 3 : Python command prompt output showing thermal and vision camera frame's inferred output.**
